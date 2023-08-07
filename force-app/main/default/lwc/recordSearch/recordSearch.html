@@ -1,0 +1,79 @@
+<template>
+  <div class="container">
+    <h1 class="header slds-p-top_medium slds-p-left_medium">従業員を検索</h1>
+    <lightning-layout horizontal-align="space">
+      <!-- 資格名 -->
+      <lightning-layout-item class="search-condition" padding="around-small">
+        <lightning-card title="資格名" icon-name="utility:record_alt">
+          <lightning-combobox class="slds-p-horizontal_small"
+                              name="資格"
+                              label=""
+                              value=""
+                              placeholder="資格を選択"
+                              options={certificationList}
+                              onchange={handleCertificationChange}>
+          </lightning-combobox>
+        </lightning-card>
+      </lightning-layout-item>
+      <!-- 試験日 -->
+      <lightning-layout-item class="search-condition" padding="around-small">
+        <lightning-card title="試験日" icon-name="utility:monthlyview">
+          <lightning-input class="slds-p-horizontal_small" 
+                           type="date" 
+                           name="dateAfter" 
+                           label="この日付以降" 
+                           placeholder="日付を入力"
+                           onchange={handleDateAfterChange}>
+          </lightning-input>
+          <lightning-input class="slds-p-horizontal_small" 
+                           type="date" 
+                           name="dateBefore" 
+                           label="この日付以前" 
+                           placeholder="日付を入力"
+                           onchange={handleDateBeforeChange}>
+          </lightning-input>
+        </lightning-card>
+      </lightning-layout-item>
+      <!-- ステータス -->
+      <lightning-layout-item class="search-condition" padding="around-small">
+        <lightning-card title="ステータス" icon-name="utility:macros">
+          <lightning-checkbox-group class="slds-p-horizontal_small" 
+                                    name="ステータス" 
+                                    label="ステータスを選択" 
+                                    options={statusList} 
+                                    value="" 
+                                    onchange={handleStatusChange}>
+          </lightning-checkbox-group>
+        </lightning-card>
+      </lightning-layout-item>
+      <!-- 合否 -->
+      <lightning-layout-item class="search-condition" padding="around-small">
+        <lightning-card title="合否" icon-name="utility:opportunity">
+          <lightning-checkbox-group class="slds-p-horizontal_small" 
+                                    name="合否" 
+                                    label="合否を選択" 
+                                    options={resultList} 
+                                    value="" 
+                                    onchange={handleResultChange}>
+          </lightning-checkbox-group>
+        </lightning-card>
+      </lightning-layout-item>
+    </lightning-layout>
+    <div class="search-button-wrapper slds-p-vertical_large">
+      <lightning-button class="slds-m-right_x-large"
+                        variant="brand" 
+                        label="検索"  
+                        icon-name="utility:search"
+                        onclick={search}>
+      </lightning-button>
+    </div>
+    <div class="search-result-wrapper slds-p-top_small slds-p-horizontal_medium slds-p-bottom_large">
+      <lightning-datatable if:true={discoveredEmployees.length}
+                           key-field="id" 
+                           data={discoveredEmployees}
+                           columns={columns}>
+      </lightning-datatable>
+      <p if:false={discoveredEmployees.length}>データが見つかりませんでした。</p>
+    </div>
+  </div>
+</template>
