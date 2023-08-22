@@ -1,6 +1,6 @@
-public with sharing class PickListSearch {
+public with sharing class QueryFieldController {
   @AuraEnabled
-  public static List<Map<String, String>> getPickList(String objectApi, String pickListApi) {
+  public static List<Map<String, String>> getPickListMap(String objectApi, String pickListApi) {
     // String objectApi = 'ExamHistory__c';
     // String pickListApi = 'Status__c';
 
@@ -16,6 +16,21 @@ public with sharing class PickListSearch {
         selectOptions.add(new Map<String, String>{'label' => entry.getLabel(), 'value' => entry.getValue()});
       }
     }
+
+    System.debug(selectOptions);
+    return selectOptions;
+  }
+
+
+  @AuraEnabled
+  public static List<Map<String, String>> getCertificationMap() {
+
+    List<Map<String, String>> selectOptions = new List<Map<String, String>>();
+    for (Certification__c record : [SELECT Name FROM Certification__c ORDER BY CertificationCode__c]) {
+      selectOptions.add(new Map<String, String>{'label' => record.Name, 'value' => record.Id});
+      System.debug(record);
+    }
+
     System.debug(selectOptions);
     return selectOptions;
   }

@@ -3,7 +3,7 @@
     <h1 class="header slds-p-top_medium slds-p-left_medium">従業員を検索</h1>
     <lightning-layout horizontal-align="space">
       <!-- 資格名 -->
-      <lightning-layout-item class="search-condition" padding="around-small">
+      <lightning-layout-item size="3" padding="around-small">
         <lightning-card title="資格名" icon-name="utility:record_alt">
           <lightning-combobox class="slds-p-horizontal_small"
                               name="資格"
@@ -16,7 +16,7 @@
         </lightning-card>
       </lightning-layout-item>
       <!-- 試験日 -->
-      <lightning-layout-item class="search-condition" padding="around-small">
+      <lightning-layout-item size="3" padding="around-small">
         <lightning-card title="試験日" icon-name="utility:monthlyview">
           <lightning-input class="slds-p-horizontal_small" 
                            type="date" 
@@ -35,11 +35,11 @@
         </lightning-card>
       </lightning-layout-item>
       <!-- ステータス -->
-      <lightning-layout-item class="search-condition" padding="around-small">
+      <lightning-layout-item size="3" padding="around-small">
         <lightning-card title="ステータス" icon-name="utility:macros">
           <lightning-checkbox-group class="slds-p-horizontal_small" 
                                     name="ステータス" 
-                                    label="ステータスを選択" 
+                                    label="" 
                                     options={statusList} 
                                     value="" 
                                     onchange={handleStatusChange}>
@@ -47,11 +47,11 @@
         </lightning-card>
       </lightning-layout-item>
       <!-- 合否 -->
-      <lightning-layout-item class="search-condition" padding="around-small">
+      <lightning-layout-item size="3" padding="around-small">
         <lightning-card title="合否" icon-name="utility:opportunity">
           <lightning-checkbox-group class="slds-p-horizontal_small" 
                                     name="合否" 
-                                    label="合否を選択" 
+                                    label="" 
                                     options={resultList} 
                                     value="" 
                                     onchange={handleResultChange}>

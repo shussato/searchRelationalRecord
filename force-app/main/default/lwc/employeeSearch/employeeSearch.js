@@ -1,7 +1,7 @@
 import { LightningElement, api, wire } from 'lwc';
-import getPickList from '@salesforce/apex/PickListSearch.getPickList';
-import getParentRecord from '@salesforce/apex/ParentRecordSearch.getParentRecord';
-import selectRecord from '@salesforce/apex/RecordSelect.selectRecord';
+import getCertificationMap from '@salesforce/apex/QueryFieldController.getCertificationMap';
+import getPickListMap from '@salesforce/apex/QueryFieldController.getPickListMap';
+import selectEmployee from '@salesforce/apex/EmployeeController.selectEmployee';
 
 const columns = [
   { label: '従業員ID', fieldName: 'EmployeeId__c', sortable: true },
@@ -12,7 +12,7 @@ const columns = [
   { label: '総受験料', fieldName: 'CertificationTotalFee__c', type: 'currency', sortable: true },
 ];
 
-export default class RecordSearch extends LightningElement {
+export default class EmployeeSearch extends LightningElement {
   selectedCertification;
   // selectedCertifications = [];
   selectedStatus = [];
@@ -25,68 +25,60 @@ export default class RecordSearch extends LightningElement {
   resultList = [];
 
   discoveredEmployees = [];
-  columns;
+  columns = columns;
 
   conditionBlock = [];
   searchCondition = '';
 
-  // selectedCertification; Api:CertificationName__c 
-  // selectedStatus = [];   Api:Status__c
-  // selectedResults = [];  Api:CertificationResult__c
-  // selectedDateBefore;    Api:ExamDate__c
-  // selectedDateAfter;
 
-  // コンストラクタを使わないとApexで取得したメタデータが反映されない
-  constructor() {
-    super();
+  connectedCallback() {
+    this.getMetadata();
+    this.search();
+  }
 
-    getParentRecord({ objectApi: 'Certification__c' }).then((list) => {
+
+  getMetadata = () => {
+    getCertificationMap().then(list => {
       this.certificationList = [{label: '--未選択--', value: 'null'}, ...list];
     }).catch(error => {
       console.error(error);
     });
 
-    getPickList({ objectApi: 'ExamHistory__c', pickListApi: 'Status__c' }).then((list) => {
+    getPickListMap({ objectApi: 'ExamHistory__c', pickListApi: 'Status__c' }).then(list => {
       this.statusList = [...list];
     }).catch(error => {
       console.error(error);
     });
 
-    getPickList({ objectApi: 'ExamHistory__c', pickListApi: 'CertificationResult__c' }).then((list) => {
+    getPickListMap({ objectApi: 'ExamHistory__c', pickListApi: 'CertificationResult__c' }).then(list => {
       this.resultList = [...list, {label: '記載なし', value: 'null'}];
     }).catch(error => {
       console.error(error);
     });
-
-    this.columns = columns;
-    this.search();
   }
-
   
+
   search = () => {
     this.conditionBlock = [];
     this.searchCondition = '';
 
     if (this.selectedCertification && this.selectedCertification != 'null') {
+      // シングルクォーテーション必須
       this.conditionBlock.push('CertificationName__r.Name = \'' + this.selectedCertification + '\'');
     }
-
     if (this.selectedStatus.length) {
       this.conditionBlock.push('Status__c' + this.createIn(this.selectedStatus));
     }
-
     if (this.selectedResults.length) {
       this.conditionBlock.push('CertificationResult__c' + this.createIn(this.selectedResults));
     }
-
     if (this.selectedDateAfter) {
       this.conditionBlock.push('ExamDate__c > ' + this.selectedDateAfter);
     }
-
     if (this.selectedDateBefore) {
       this.conditionBlock.push('ExamDate__c < ' + this.selectedDateBefore);
     }
-    
+
     // console.log(this.conditionBlock[0]);
     if (this.conditionBlock.length) {
       this.searchCondition += this.conditionBlock[0];
@@ -97,7 +89,7 @@ export default class RecordSearch extends LightningElement {
 
     console.log('------Condition------\n', this.searchCondition);
 
-    selectRecord({condition: this.searchCondition}).then((list) => {
+    selectEmployee({condition: this.searchCondition}).then((list) => {
       this.discoveredEmployees = list;
       console.log('------Employee------\n', this.discoveredEmployees);
 
@@ -128,8 +120,6 @@ export default class RecordSearch extends LightningElement {
   handleCertificationChange(e) {
     this.selectedCertification = e.detail.value;
     console.log('資格：', this.selectedCertification);
-    // this.selectedCertifications.push(e.detail.value);
-    // console.log(this.selectedCertifications);
   }
 
   handleStatusChange(e) {
