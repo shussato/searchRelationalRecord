@@ -1,0 +1,14 @@
+<template>
+  <lightning-card title="従業員" icon-name="utility:people">
+    <div class="slds-card__body slds-card__body_inner">
+      <div class="search-result-wrapper">
+        <lightning-datatable if:true={employees.length}
+                             key-field="id" 
+                             data={employees}
+                             columns={columns}>
+        </lightning-datatable>
+        <p if:false={employees.length}>データが見つかりませんでした。</p>
+      </div>
+    </div>
+  </lightning-card>
+</template>

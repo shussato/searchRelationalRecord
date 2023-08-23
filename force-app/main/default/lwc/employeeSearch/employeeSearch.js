@@ -1,18 +1,13 @@
 import { LightningElement, api, wire } from 'lwc';
+import { publish, MessageContext } from 'lightning/messageService';
+import EMPLOYEE_UPDATE_MESSAGE from '@salesforce/messageChannel/EmployeeUpdate__c';
 import getCertificationMap from '@salesforce/apex/QueryFieldController.getCertificationMap';
 import getPickListMap from '@salesforce/apex/QueryFieldController.getPickListMap';
 import selectEmployee from '@salesforce/apex/EmployeeController.selectEmployee';
 
-const columns = [
-  { label: '従業員ID', fieldName: 'EmployeeId__c', sortable: true },
-  { label: '名前', fieldName: 'Name', sortable: true },
-  { label: '部署', fieldName: 'Department__c', sortable: true },
-  { label: '入社日', fieldName: 'HireDate__c', type: 'date', sortable: true },
-  { label: 'メール', fieldName: 'Mail__c', type: 'email', sortable: true },
-  { label: '総受験料', fieldName: 'CertificationTotalFee__c', type: 'currency', sortable: true },
-];
-
 export default class EmployeeSearch extends LightningElement {
+  @wire(MessageContext) messageContext;
+
   selectedCertification;
   // selectedCertifications = [];
   selectedStatus = [];
@@ -25,7 +20,6 @@ export default class EmployeeSearch extends LightningElement {
   resultList = [];
 
   discoveredEmployees = [];
-  columns = columns;
 
   conditionBlock = [];
   searchCondition = '';
@@ -64,7 +58,7 @@ export default class EmployeeSearch extends LightningElement {
 
     if (this.selectedCertification && this.selectedCertification != 'null') {
       // シングルクォーテーション必須
-      this.conditionBlock.push('CertificationName__r.Name = \'' + this.selectedCertification + '\'');
+      this.conditionBlock.push('CertificationName__r.Id = \'' + this.selectedCertification + '\'');
     }
     if (this.selectedStatus.length) {
       this.conditionBlock.push('Status__c' + this.createIn(this.selectedStatus));
@@ -91,6 +85,7 @@ export default class EmployeeSearch extends LightningElement {
 
     selectEmployee({condition: this.searchCondition}).then((list) => {
       this.discoveredEmployees = list;
+      publish(this.messageContext, EMPLOYEE_UPDATE_MESSAGE, {employees: this.discoveredEmployees});
       console.log('------Employee------\n', this.discoveredEmployees);
 
     }).catch(error => {
