@@ -4,11 +4,21 @@
       <div class="search-result-wrapper">
         <lightning-datatable if:true={employees.length}
                              key-field="id" 
-                             data={employees}
+                             data={showedEmployees}
                              columns={columns}>
         </lightning-datatable>
         <p if:false={employees.length}>データが見つかりませんでした。</p>
       </div>
+      <p class="slds-m-vertical_medium">{totalRecord}件中 {startingRecord}件～{endingRecord}件を表示中。{page}/{totalPage}ページ</p>
+        <lightning-layout>
+          <lightning-layout-item>
+            <lightning-button label="前へ" icon-name="utility:chevronleft" onclick={pagePrevious} disabled={isFirstPage}></lightning-button>
+          </lightning-layout-item>
+          <lightning-layout-item flexibility="grow"></lightning-layout-item>
+          <lightning-layout-item>
+            <lightning-button label="次へ" icon-name="utility:chevronright" icon-position="right" onclick={pageNext} disabled={isLastPage}></lightning-button>
+          </lightning-layout-item>
+        </lightning-layout>
     </div>
   </lightning-card>
 </template>
