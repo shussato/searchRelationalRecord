@@ -1,4 +1,4 @@
-import { LightningElement, wire } from 'lwc';
+import { LightningElement, api, wire, track } from 'lwc';
 import { subscribe, unsubscribe, MessageContext } from 'lightning/messageService';
 import EMPLOYEE_UPDATE_MESSAGE from '@salesforce/messageChannel/EmployeeUpdate__c';
 
@@ -15,6 +15,8 @@ export default class EmployeeList extends LightningElement {
   subscription = null;
   employees = [];
   showedEmployees = [];
+  selectedRows = [];
+  allSelectedRows = [];
   columns = columns;
 
   page;
@@ -23,8 +25,6 @@ export default class EmployeeList extends LightningElement {
   endingRecord;
   totalPage;
   totalRecord;
-  isFirstPage;
-  isLastPage;
 
   @wire(MessageContext) messageContext;
 
@@ -45,6 +45,7 @@ export default class EmployeeList extends LightningElement {
         this.page = 0;
         this.pageNext();
         
+        this.allSelectedRows = [];
       }
     )
   }
@@ -53,6 +54,58 @@ export default class EmployeeList extends LightningElement {
     unsubscribe(this.subscription);
     this.subscription = null;
   }
+
+  get haveNoRows() {
+    if (this.allSelectedRows.length) {
+      return false;
+    }
+    return true;
+  }
+
+  get isFirstPage() {
+    return this.page === 1;
+  }
+
+  get isLastPage() {
+    return this.page === this.totalPage;
+  }
+
+  get selectedRowsFirst() {
+    return this.showedEmployees
+      .filter(employee => this.allSelectedRows.includes(employee))
+      .map(employee => employee.Id);
+  }
+
+
+  handleRowSelection(e) {
+    console.log(e.detail);
+    this.selectedRows = e.detail.selectedRows;
+
+    const config = e.detail.config;
+    if (config.action == 'rowSelect' || config.action == 'selectAllRows') {
+      // 重複を排除して配列に追加
+      this.allSelectedRows = [...new Set([...this.allSelectedRows, ...this.selectedRows])];
+
+    } else if (config.action == 'rowDeselect') {
+      this.allSelectedRows = this.allSelectedRows.filter(row => {
+        return row.Id != config.value;
+      });
+
+    } else if (config.action == 'deselectAllRows') {
+      this.allSelectedRows = this.allSelectedRows.filter(row => {
+        return !this.showedEmployees.includes(row);
+      });
+    }
+
+    // console.log(JSON.parse(JSON.stringify(this.allSelectedRows)));
+  }
+
+  showModal = () => {
+    // Jsonを経由しないとなぜか配列が表示されない
+    // 「要素数が0なのに個々の要素が存在する」という状態になる
+    console.log('------SelectedEmployees------\n', JSON.parse(JSON.stringify(this.allSelectedRows)));
+  }
+
 
   // Datatableのページネーション
   pageNext = () => {
@@ -65,7 +118,7 @@ export default class EmployeeList extends LightningElement {
     this.changePage(this.page);
   }
 
-  changePage = (page) => {
+  changePage = page => {
     this.startingRecord = (page - 1) * this.pageSize;
 
     if (page * this.pageSize > this.totalRecord) {
@@ -73,9 +126,6 @@ export default class EmployeeList extends LightningElement {
     } else {
       this.endingRecord = page * this.pageSize;
     }
-
-    this.isFirstPage = (page === 1);
-    this.isLastPage = (page === this.totalPage);
 
     this.showedEmployees = [...this.employees.slice(this.startingRecord, this.endingRecord)];
     this.startingRecord++;

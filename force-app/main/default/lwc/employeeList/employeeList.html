@@ -1,15 +1,25 @@
 <template>
   <lightning-card title="従業員" icon-name="utility:people">
+    <lightning-button class=""
+                      label="受験履歴を作成" 
+                      slot="actions" 
+                      onclick={showModal}
+                      disabled={haveNoRows}>
+    </lightning-button>
     <div class="slds-card__body slds-card__body_inner">
       <div class="search-result-wrapper">
         <lightning-datatable if:true={employees.length}
-                             key-field="id" 
+                             key-field="Id" 
                              data={showedEmployees}
-                             columns={columns}>
+                             columns={columns}
+                             selected-rows={selectedRowsFirst}
+                             onrowselection={handleRowSelection}
+                             class="table">
         </lightning-datatable>
         <p if:false={employees.length}>データが見つかりませんでした。</p>
       </div>
-      <p class="slds-m-vertical_medium">{totalRecord}件中 {startingRecord}件～{endingRecord}件を表示中。{page}/{totalPage}ページ</p>
+      <div if:true={employees.length}>
+        <p class="slds-m-vertical_medium">{totalRecord}件中 {startingRecord}件～{endingRecord}件を表示中。{page}/{totalPage}ページ</p>
         <lightning-layout>
           <lightning-layout-item>
             <lightning-button label="前へ" icon-name="utility:chevronleft" onclick={pagePrevious} disabled={isFirstPage}></lightning-button>
@@ -19,6 +29,7 @@
             <lightning-button label="次へ" icon-name="utility:chevronright" icon-position="right" onclick={pageNext} disabled={isLastPage}></lightning-button>
           </lightning-layout-item>
         </lightning-layout>
+      </div>
     </div>
   </lightning-card>
 </template>
