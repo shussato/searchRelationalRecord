@@ -1,3 +1,7 @@
-.table {
-  height: 100px;
+.search-result-wrapper {
+  height: 180px;
+}
+
+.slds-table_header-fixed_container {
+  background-color: #FFFFFF;
 }

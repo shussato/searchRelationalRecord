@@ -1,0 +1,61 @@
+<template>
+  <lightning-modal-header label="受験履歴レコードを作成"></lightning-modal-header>
+    <lightning-modal-body>
+      <p class="slds-m-bottom_xx-small">対象の従業員</p>
+      <template iterator:it={employees}>
+        <lightning-badge key={it.value.index} 
+                        label={it.value.Name} 
+                        data-index={it.index}
+                        class="slds-m-bottom_xx-small">
+        </lightning-badge>
+      </template>
+      <template iterator:it={certificationPlans}>
+        <lightning-layout key={it.value.index} horizontal-align="space">
+          <lightning-layout-item size="1" class="head-button">
+            <lightning-layout>
+              <lightning-layout-item size="6">
+                <lightning-button-icon icon-name="utility:add" 
+                variant="container"
+                title="追加"
+                onclick={addPlan}
+                if:true={it.last}
+                data-index={it.index}>
+                </lightning-button-icon>
+              </lightning-layout-item>
+              <lightning-layout-item size="6">
+                <lightning-button-icon icon-name="utility:close" 
+                                   variant="container"
+                                   title="削除"
+                                   onclick={deletePlan}
+                                   if:false={isOnePlan}
+                                   data-index={it.index}>
+            </lightning-button-icon>
+              </lightning-layout-item>
+            </lightning-layout>
+          </lightning-layout-item>
+          <lightning-layout-item size="6" class="slds-p-right_xx-small">
+            <lightning-combobox name="資格"
+                                value={it.value.certification}
+                                placeholder="資格を選択"
+                                options={certifications}
+                                onchange={handleCertificationChange}
+                                data-index={it.index}>
+            </lightning-combobox>
+          </lightning-layout-item>
+          <lightning-layout-item size="5" class="slds-p-left_xx-small">
+            <lightning-input type="date" 
+                             name="date" 
+                             value={it.value.date}
+                             placeholder="試験日を入力"
+                             onchange={handleDateChange}
+                             data-index={it.index}>
+            </lightning-input>
+          </lightning-layout-item>
+        </lightning-layout>
+      </template>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+      <lightning-button class="slds-m-right_small" label="キャンセル" onclick={closeModal}></lightning-button>
+      <lightning-button label="作成" onclick={setPlans} variant="brand" disabled={isNotCreatable}></lightning-button>
+    </lightning-modal-footer>
+</template>

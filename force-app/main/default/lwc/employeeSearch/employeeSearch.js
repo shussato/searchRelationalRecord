@@ -31,9 +31,9 @@ export default class EmployeeSearch extends LightningElement {
   }
 
 
-  getMetadata = () => {
+  getMetadata() {
     getCertificationMap().then(list => {
-      this.certificationList = [{label: '--未選択--', value: 'null'}, ...list];
+      this.certificationList = [{ label: '--未選択--', value: 'null' }, ...list];
     }).catch(error => {
       console.error(error);
     });
@@ -45,14 +45,14 @@ export default class EmployeeSearch extends LightningElement {
     });
 
     getPickListMap({ objectApi: 'ExamHistory__c', pickListApi: 'CertificationResult__c' }).then(list => {
-      this.resultList = [...list, {label: '記載なし', value: 'null'}];
+      this.resultList = [...list, { label: '記載なし', value: 'null' }];
     }).catch(error => {
       console.error(error);
     });
   }
   
 
-  search = () => {
+  search() {
     this.conditionBlock = [];
     this.searchCondition = '';
 
@@ -83,10 +83,10 @@ export default class EmployeeSearch extends LightningElement {
 
     console.log('------Condition------\n', this.searchCondition);
 
-    selectEmployee({condition: this.searchCondition}).then((list) => {
+    selectEmployee({ condition: this.searchCondition }).then((list) => {
       this.discoveredEmployees = list;
-      publish(this.messageContext, EMPLOYEE_UPDATE_MESSAGE, {employees: this.discoveredEmployees});
-      console.log('------Employee------\n', this.discoveredEmployees);
+      publish(this.messageContext, EMPLOYEE_UPDATE_MESSAGE, { employees: this.discoveredEmployees });
+      console.log('------Employees------\n', this.discoveredEmployees);
 
     }).catch(error => {
       console.error(error);
@@ -94,7 +94,7 @@ export default class EmployeeSearch extends LightningElement {
   }
 
 
-  createIn = (pickList) => {
+  createIn(pickList) {
     let condition = ' IN (';
     for (let i = 0; i < pickList.length; i++) {
       if (pickList[i] == 'null') {
