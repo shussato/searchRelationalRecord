@@ -34,6 +34,12 @@ export default class EmployeeList extends LightningElement {
 
   @wire(MessageContext) messageContext;
 
+  constructor() {
+    super();
+    this.sortedBy = 'url';
+    this.sortedDirection = 'asc';
+  }
+
   connectedCallback() {
     this.subscription = subscribe(
       this.messageContext, 
@@ -52,7 +58,7 @@ export default class EmployeeList extends LightningElement {
         this.pageNext();
         
         this.allSelectedRows = [];
-        this.sortedBy = null;
+        this.sortRows(this.sortedBy, this.sortedDirection);
         // console.log('Datatable height:', this.template.querySelector('.slds-table_header-fixed_container').clientHeight);
       }
     )

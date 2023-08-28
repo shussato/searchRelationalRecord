@@ -7,17 +7,14 @@ import createExamHistory from '@salesforce/apex/EmployeeController.createExamHis
 export default class CreatingHistoryModal extends LightningModal {
   @api employees;
   certifications;
+  @track selectableCertifications = [];
   @track certificationPlans = [];
 
   connectedCallback() {
     getCertificationMap().then(list => {
       this.certifications = [...list];
-
-      const plan = {
-        certification: null, 
-        date: null
-      };
-      this.certificationPlans.push(plan);
+      this.selectableCertifications.push(list);
+      this.certificationPlans.push({ certification: null, date: null });
 
     }).catch(error => {
       console.error(error);
@@ -41,18 +38,17 @@ export default class CreatingHistoryModal extends LightningModal {
     this.close('Modal closed');
   }
 
-  handleRemove(e) {
-    console.log('delete employee index:', e.target.dataset.index);
-    // this.employees.splice(e.target.dataset.index, 1);
-  }
-
-  handleCertificationChange(e) {
+  async handleCertificationChange(e) {
     const index = e.target.dataset.index;
     const value = e.detail.value;
     console.log('index:', index);
     console.log('Certification:', value);
 
     this.certificationPlans[index].certification = value;
+    this.handlePicklist(this.selectableCertifications, this.certificationPlans).then(list => {
+      this.selectableCertifications = [...list];
+    });
+
   }
 
   handleDateChange(e) {
@@ -64,18 +60,40 @@ export default class CreatingHistoryModal extends LightningModal {
     this.certificationPlans[index].date = value;
   }
 
-  addPlan() {
-    console.log('add plan');
-    const plan = {
-      certification: null, 
-      date: null
-    };
-    this.certificationPlans.push(plan);
+  async handlePicklist(picklists, certificationPlans) {
+    const selectedCertifications = certificationPlans.map(plan => plan.certification);
+
+    let selectableCertifications = [];
+    for (let i = 0; i < picklists.length; i++) {
+      let picklist = this.certifications.filter(certification => {
+        return !selectedCertifications.includes(certification.value) || selectedCertifications[i] == certification.value;
+      });
+      selectableCertifications.push(picklist);
+    }
+
+    return selectableCertifications;
   }
 
-  deletePlan(e) {
-    console.log('delete plan index:', e.target.dataset.index);
-    this.certificationPlans.splice(e.target.dataset.index, 1);
+  addPlan() {
+    console.log('add plan');
+    this.certificationPlans.push({ certification: null, date: null });
+
+    let picklist = this.certifications.filter(certification => {
+      return !this.certificationPlans.map(plan => plan.certification).includes(certification.value);
+    });
+    this.selectableCertifications.push(picklist);
+  }
+
+  async deletePlan(e) {
+    const index = e.target.dataset.index;
+    console.log('delete plan index:', index);
+    this.certificationPlans.splice(index, 1);
+    this.selectableCertifications.splice(index, 1);
+    this.handlePicklist(this.selectableCertifications, this.certificationPlans).then(list => {
+      this.selectableCertifications = [...list];
+    });
+
+    console.log(JSON.parse(JSON.stringify(this.selectableCertifications)));
   }
 
   setPlans() {
