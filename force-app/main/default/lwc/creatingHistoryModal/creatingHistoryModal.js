@@ -38,17 +38,15 @@ export default class CreatingHistoryModal extends LightningModal {
     this.close('Modal closed');
   }
 
-  async handleCertificationChange(e) {
+  handleCertificationChange(e) {
     const index = e.target.dataset.index;
     const value = e.detail.value;
     console.log('index:', index);
     console.log('Certification:', value);
 
     this.certificationPlans[index].certification = value;
-    this.handlePicklist(this.selectableCertifications, this.certificationPlans).then(list => {
-      this.selectableCertifications = [...list];
-    });
 
+    this.selectableCertifications = [...this.updatePicklists(this.selectableCertifications, this.certificationPlans)];
   }
 
   handleDateChange(e) {
@@ -60,18 +58,18 @@ export default class CreatingHistoryModal extends LightningModal {
     this.certificationPlans[index].date = value;
   }
 
-  async handlePicklist(picklists, certificationPlans) {
-    const selectedCertifications = certificationPlans.map(plan => plan.certification);
+  updatePicklists(oldPicklists, plans) {
+    const selectedCertifications = plans.map(plan => plan.certification);
 
-    let selectableCertifications = [];
-    for (let i = 0; i < picklists.length; i++) {
+    let newPicklists = [];
+    for (let i = 0; i < oldPicklists.length; i++) {
       let picklist = this.certifications.filter(certification => {
         return !selectedCertifications.includes(certification.value) || selectedCertifications[i] == certification.value;
       });
-      selectableCertifications.push(picklist);
+      newPicklists.push(picklist);
     }
 
-    return selectableCertifications;
+    return newPicklists;
   }
 
   addPlan() {
@@ -84,16 +82,24 @@ export default class CreatingHistoryModal extends LightningModal {
     this.selectableCertifications.push(picklist);
   }
 
-  async deletePlan(e) {
+  deletePlan(e) {
     const index = e.target.dataset.index;
     console.log('delete plan index:', index);
+
     this.certificationPlans.splice(index, 1);
     this.selectableCertifications.splice(index, 1);
-    this.handlePicklist(this.selectableCertifications, this.certificationPlans).then(list => {
-      this.selectableCertifications = [...list];
-    });
 
-    console.log(JSON.parse(JSON.stringify(this.selectableCertifications)));
+    this.selectableCertifications = [...this.updatePicklists(this.selectableCertifications, this.certificationPlans)];
+
+    // 値を再設定しないと画面に反映されない
+    let htmlCertifications = this.template.querySelectorAll('lightning-combobox');
+    let htmlDates = this.template.querySelectorAll('lightning-input');
+
+    for (let i = 0; i < htmlCertifications.length; i++) {
+      htmlCertifications[i].value = this.certificationPlans[i].certification;
+      htmlDates[i].value = this.certificationPlans[i].date;
+    }
+
   }
 
   setPlans() {
