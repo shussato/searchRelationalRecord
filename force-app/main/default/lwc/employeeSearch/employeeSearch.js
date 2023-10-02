@@ -1,9 +1,9 @@
 import { LightningElement, api, wire } from 'lwc';
 import { publish, MessageContext } from 'lightning/messageService';
 import EMPLOYEE_UPDATE_MESSAGE from '@salesforce/messageChannel/EmployeeUpdate__c';
-import getCertificationMap from '@salesforce/apex/QueryFieldController.getCertificationMap';
-import getPickListMap from '@salesforce/apex/QueryFieldController.getPickListMap';
-import selectEmployee from '@salesforce/apex/EmployeeController.selectEmployee';
+import getCertificationMap from '@salesforce/apex/Utility.getCertificationMap';
+import getPickListMap from '@salesforce/apex/Utility.getPickListMap';
+import selectEmployee from '@salesforce/apex/EmployeeSearchController.selectEmployee';
 
 export default class EmployeeSearch extends LightningElement {
   @wire(MessageContext) messageContext;
@@ -73,14 +73,7 @@ export default class EmployeeSearch extends LightningElement {
       this.conditionBlock.push('ExamDate__c < ' + this.selectedDateBefore);
     }
 
-    // console.log(this.conditionBlock[0]);
-    if (this.conditionBlock.length) {
-      this.searchCondition += this.conditionBlock[0];
-    }
-    for (let i = 1; i < this.conditionBlock.length; i++) {
-      this.searchCondition += (' AND ' + this.conditionBlock[i]);
-    }
-
+    this.searchCondition = this.conditionBlock.join(' AND ');
     console.log('------Condition------\n', this.searchCondition);
 
     selectEmployee({ condition: this.searchCondition }).then((list) => {

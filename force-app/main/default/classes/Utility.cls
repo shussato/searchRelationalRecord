@@ -1,4 +1,4 @@
-public with sharing class QueryFieldController {
+public with sharing class Utility {
   @AuraEnabled
   public static List<Map<String, String>> getPickListMap(String objectApi, String pickListApi) {
     // String objectApi = 'ExamHistory__c';

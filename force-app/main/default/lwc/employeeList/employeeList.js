@@ -1,10 +1,16 @@
-import { LightningElement, api, wire, track } from 'lwc';
+import { LightningElement, api, wire } from 'lwc';
+import { NavigationMixin } from 'lightning/navigation';
 import { subscribe, unsubscribe, MessageContext } from 'lightning/messageService';
 import EMPLOYEE_UPDATE_MESSAGE from '@salesforce/messageChannel/EmployeeUpdate__c';
 import CreatingHistoryModal from 'c/creatingHistoryModal';
 
 const columns = [
-  { label: '従業員ID', fieldName: 'url', type: 'url', typeAttributes: { label: { fieldName: 'EmployeeId__c' }, tooltip: { fieldName: 'EmployeeId__c' } }, sortable: true },
+  { label: '従業員ID', fieldName: 'Id', type: 'button', sortable: true, typeAttributes: { label: { fieldName: 'EmployeeId__c' },
+                                                                                                     target: '_blank',
+                                                                                                     variant: 'base',
+                                                                                                     name: 'urlRedirect'
+                                                                                        } 
+  },
   { label: '名前', fieldName: 'Name', sortable: true },
   { label: '部署', fieldName: 'Department__c', sortable: true },
   { label: '入社日', fieldName: 'HireDate__c', type: 'date', sortable: true },
@@ -12,7 +18,7 @@ const columns = [
   { label: '総受験料', fieldName: 'CertificationTotalFee__c', type: 'currency', sortable: true },
 ];
 
-export default class EmployeeList extends LightningElement {
+export default class EmployeeList extends NavigationMixin(LightningElement) {
   subscription = null;
   employees = [];
   showedEmployees = [];
@@ -36,7 +42,7 @@ export default class EmployeeList extends LightningElement {
 
   constructor() {
     super();
-    this.sortedBy = 'url';
+    this.sortedBy = 'Id';
     this.sortedDirection = 'asc';
   }
 
@@ -45,13 +51,8 @@ export default class EmployeeList extends LightningElement {
       this.messageContext, 
       EMPLOYEE_UPDATE_MESSAGE,
       message => {
-        // ディープコピーしないと新規プロパティを追加できない
-        this.employees = structuredClone(message.employees);
+        this.employees = [...message.employees];
         
-        for (const employee of this.employees) {
-          employee.url = '/lightning/r/' + employee.Id + '/view';
-        }
-
         this.totalRecord = this.employees.length;
         this.totalPage = Math.ceil(this.totalRecord / this.pageSize);
         this.page = 0;
@@ -94,6 +95,29 @@ export default class EmployeeList extends LightningElement {
       .map(employee => employee.Id);
   }
 
+  handleRowAction(e) {
+    const actionName = e.detail.action.name;
+    const row = e.detail.row;
+
+    switch(actionName){
+      case 'urlRedirect':
+        this.showRowDetails(row);
+        break;
+      default:
+    }
+  }
+
+  showRowDetails(row) {
+    this[NavigationMixin.Navigate]({
+      type: 'standard__recordPage',
+      attributes: {
+        recordId: row.Id,
+        objectApiName: 'Employee__c',
+        actionName: 'view'
+      }
+    });
+  }
+
   handleOnSort(e) {
     this.sortedBy = e.detail.fieldName;
     this.sortedDirection = e.detail.sortDirection;
@@ -110,8 +134,8 @@ export default class EmployeeList extends LightningElement {
       return -1;
     };
 
-    // url化した項目はラベル項目を指定しないと正しくソートできない
-    if (field == 'url') {
+    // ボタン化した項目はラベル項目を指定しないと正しくソートできない
+    if (field == 'Id') {
       field = 'EmployeeId__c';
     }
 

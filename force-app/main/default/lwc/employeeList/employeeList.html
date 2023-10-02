@@ -17,7 +17,7 @@
                              sorted-by={sortedBy}
                              onsort={handleOnSort}
                              sorted-direction={sortedDirection}
-                             part="table">
+                             onrowaction={handleRowAction}>
         </lightning-datatable>
         <p if:false={employees.length}>データが見つかりませんでした。</p>
       </div>

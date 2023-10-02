@@ -1,8 +1,8 @@
 import { api, track } from 'lwc';
 import LightningModal from 'lightning/modal';
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import getCertificationMap from '@salesforce/apex/QueryFieldController.getCertificationMap';
-import createExamHistory from '@salesforce/apex/EmployeeController.createExamHistory';
+import getCertificationMap from '@salesforce/apex/Utility.getCertificationMap';
+import createExamHistory from '@salesforce/apex/creatingHistoryController.createExamHistory';
 
 export default class CreatingHistoryModal extends LightningModal {
   @api employees;
